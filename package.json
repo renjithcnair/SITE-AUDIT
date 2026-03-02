@@ -1,0 +1,26 @@
+{
+  "name": "site-audit",
+  "version": "1.0.0",
+  "description": "Website crawler with Lighthouse/Core Web Vitals and accessibility scans",
+  "main": "src/cli.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "start:cli": "node src/cli.js",
+    "start:api": "node src/server/index.js",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:preview": "npm --prefix web run preview",
+    "test": "node --test",
+    "test:ci": "mkdir -p test-results && node --test --test-reporter=tap > test-results/latest.tap"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "keywords": [
+    "lighthouse",
+    "core-web-vitals",
+    "accessibility",
+    "crawler"
+  ],
+  "license": "MIT"
+}
