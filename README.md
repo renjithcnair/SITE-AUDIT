@@ -51,7 +51,7 @@ Grades:
 
 ## Crawl Defaults
 
-- `maxPages = 50`
+- `maxPages = 1`
 - `maxDepth = 2`
 - `pauseMs = 1000`
 
@@ -113,7 +113,7 @@ UI base: `http://localhost:5173`
 ### 3) CLI mode (still supported)
 
 ```bash
-npm run start:cli -- https://example.com --max-pages 50 --max-depth 2 --pause-ms 1000
+npm run start:cli -- https://example.com --max-pages 1 --max-depth 2 --pause-ms 1000
 ```
 
 ## API Endpoints
@@ -129,7 +129,7 @@ npm run start:cli -- https://example.com --max-pages 50 --max-depth 2 --pause-ms
 ```json
 {
   "url": "https://example.com",
-  "maxPages": 50,
+  "maxPages": 1,
   "maxDepth": 2,
   "pauseMs": 1000
 }

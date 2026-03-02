@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export default function ScanForm({ onStart, disabled }) {
   const [url, setUrl] = useState('');
-  const [maxPages, setMaxPages] = useState('');
+  const [maxPages, setMaxPages] = useState(1);
   const [maxDepth, setMaxDepth] = useState(2);
   const [pauseMs, setPauseMs] = useState(1000);
   const [error, setError] = useState('');
@@ -19,13 +19,10 @@ export default function ScanForm({ onStart, disabled }) {
 
       const payload = {
         url,
+        maxPages: Number(maxPages),
         maxDepth: Number(maxDepth),
         pauseMs: Number(pauseMs)
       };
-
-      if (String(maxPages).trim() !== '') {
-        payload.maxPages = Number(maxPages);
-      }
 
       await onStart(payload);
     } catch (err) {
@@ -51,14 +48,13 @@ export default function ScanForm({ onStart, disabled }) {
 
       <div className="field-grid">
         <label>
-          Max Pages (leave empty for full site)
+          Max Pages
           <input
             type="number"
             min="1"
             max="500"
             value={maxPages}
             onChange={(event) => setMaxPages(event.target.value)}
-            placeholder="Unlimited"
             disabled={disabled}
           />
         </label>
@@ -87,6 +83,15 @@ export default function ScanForm({ onStart, disabled }) {
           />
         </label>
       </div>
+
+      <details className="explain-toggle">
+        <summary>What do these settings mean?</summary>
+        <ul>
+          <li><strong>Max Pages</strong>: Maximum number of same-origin URLs scanned in one run. Default is <strong>1</strong>.</li>
+          <li><strong>Max Depth</strong>: How many link levels away from the start URL the crawler can follow.</li>
+          <li><strong>Pause (ms)</strong>: Delay between crawl/scan steps. Higher values reduce request burst load.</li>
+        </ul>
+      </details>
 
       {error ? <p className="error-text">{error}</p> : null}
 

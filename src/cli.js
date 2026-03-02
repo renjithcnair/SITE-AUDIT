@@ -27,7 +27,7 @@ function sleep(ms) {
 function parseArgs(argv) {
   const options = {
     url: '',
-    maxPages: 50,
+    maxPages: 1,
     maxDepth: 2,
     pauseMs: 1000,
     reportDir: path.resolve(process.cwd(), 'reports')

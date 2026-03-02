@@ -3,9 +3,9 @@ const assert = require('node:assert/strict');
 
 const { sanitizeScanOptions, createCustomerSummary } = require('../src/server/scanController');
 
-test('sanitizeScanOptions uses full-site mode when maxPages is omitted', () => {
+test('sanitizeScanOptions defaults maxPages to 1 when omitted', () => {
   const options = sanitizeScanOptions({});
-  assert.equal(options.maxPages, null);
+  assert.equal(options.maxPages, 1);
   assert.equal(options.maxDepth, 2);
   assert.equal(options.pauseMs, 1000);
 });
@@ -17,9 +17,9 @@ test('sanitizeScanOptions constrains upper bounds', () => {
   assert.equal(options.pauseMs, 10000);
 });
 
-test('sanitizeScanOptions treats blank maxPages as full-site mode', () => {
+test('sanitizeScanOptions treats blank maxPages as default 1', () => {
   const options = sanitizeScanOptions({ maxPages: '   ' });
-  assert.equal(options.maxPages, null);
+  assert.equal(options.maxPages, 1);
 });
 
 test('createCustomerSummary returns customer-friendly text', () => {

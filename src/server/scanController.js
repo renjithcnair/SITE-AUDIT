@@ -37,9 +37,12 @@ function defaultClearMarks() {
 function sanitizeScanOptions(body) {
   const rawMaxPages = body?.maxPages;
   const hasMaxPages = rawMaxPages !== undefined && rawMaxPages !== null && String(rawMaxPages).trim() !== '';
+  const parsedMaxPages = Number(rawMaxPages);
 
   return {
-    maxPages: hasMaxPages && Number(rawMaxPages) > 0 ? Math.min(Number(rawMaxPages), 500) : null,
+    maxPages: hasMaxPages && Number.isFinite(parsedMaxPages) && parsedMaxPages > 0
+      ? Math.min(parsedMaxPages, 500)
+      : 1,
     maxDepth: Number(body?.maxDepth) >= 0 ? Math.min(Number(body.maxDepth), 10) : 2,
     pauseMs: Number(body?.pauseMs) >= 0 ? Math.min(Number(body.pauseMs), 10000) : 1000
   };

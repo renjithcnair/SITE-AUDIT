@@ -16,6 +16,12 @@ const DEFAULT_CLEAR_MARKS = {
   recentUpdates: null
 };
 
+const THEME_OPTIONS = [
+  { value: 'forest', label: 'Forest' },
+  { value: 'ocean', label: 'Ocean' },
+  { value: 'sunset', label: 'Sunset' }
+];
+
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
   const data = await res.json();
@@ -124,6 +130,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [selectedPage, setSelectedPage] = useState(null);
   const [clockMs, setClockMs] = useState(Date.now());
+  const [theme, setTheme] = useState(() => localStorage.getItem('site-audit-theme') || 'forest');
 
   const isActive = ['running', 'queued', 'paused', 'stopping'].includes(status);
   const elapsedMs = useMemo(() => computeElapsedMs(progress, clockMs), [progress, clockMs]);
@@ -132,6 +139,11 @@ export default function Dashboard() {
     const interval = setInterval(() => setClockMs(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('site-audit-theme', theme);
+  }, [theme]);
 
   const handleStart = async (payload) => {
     setError('');
@@ -483,12 +495,37 @@ export default function Dashboard() {
       .reverse();
   }, [events, clearMarks.recentUpdates]);
 
+  const hasPageStatus = pageStatusRows.length > 0;
+  const hasAccessibilityIssues = liveAccessibilityIssues.length > 0;
+  const hasErrors = allErrors.length > 0;
+  const hasScannedUrls = allScannedUrls.length > 0;
+  const hasRecentUpdates = recentEvents.length > 0;
+  const hasAnyProgression = (
+    hasPageStatus ||
+    hasAccessibilityIssues ||
+    hasErrors ||
+    hasScannedUrls ||
+    hasRecentUpdates
+  );
+
   return (
     <main className="layout">
       <header className="hero">
         <p className="eyebrow">Site Quality Dashboard</p>
         <h1>Scan your website and review Lighthouse + accessibility health.</h1>
         <p>Customer-friendly summary first, technical detail on demand.</p>
+        <div className="theme-row">
+          <label htmlFor="theme-select">Theme</label>
+          <select
+            id="theme-select"
+            value={theme}
+            onChange={(event) => setTheme(event.target.value)}
+          >
+            {THEME_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
       </header>
 
       <ScanForm onStart={handleStart} disabled={isActive} />
@@ -509,7 +546,9 @@ export default function Dashboard() {
             {(status === 'completed' || status === 'failed' || status === 'stopped') ? (
               <button type="button" onClick={handleRestart}>Restart</button>
             ) : null}
-            <button type="button" onClick={() => handleClear('all')}>Clear All Panels</button>
+            {hasAnyProgression ? (
+              <button type="button" onClick={() => handleClear('all')}>Clear All Panels</button>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -521,9 +560,11 @@ export default function Dashboard() {
       <section className="panel">
         <div className="panel-head">
           <h2>Live Page Status and LCP</h2>
-          <button type="button" className="secondary-btn" onClick={() => handleClear('livePageStatus')}>Clear</button>
+          {hasPageStatus ? (
+            <button type="button" className="secondary-btn" onClick={() => handleClear('livePageStatus')}>Clear</button>
+          ) : null}
         </div>
-        {pageStatusRows.length ? (
+        {hasPageStatus ? (
           <ul className="mono-list">
             {pageStatusRows.slice(0, 300).map((row) => (
               <li key={row.url}>
@@ -543,9 +584,11 @@ export default function Dashboard() {
       <section className="panel">
         <div className="panel-head">
           <h2>Live Accessibility Issues</h2>
-          <button type="button" className="secondary-btn" onClick={() => handleClear('liveAccessibilityIssues')}>Clear</button>
+          {hasAccessibilityIssues ? (
+            <button type="button" className="secondary-btn" onClick={() => handleClear('liveAccessibilityIssues')}>Clear</button>
+          ) : null}
         </div>
-        {liveAccessibilityIssues.length ? (
+        {hasAccessibilityIssues ? (
           <ul className="mono-list">
             {liveAccessibilityIssues.slice(0, 300).map((issue, index) => (
               <li key={`${issue.url}-${issue.title}-${index}`}>
@@ -560,9 +603,11 @@ export default function Dashboard() {
       <section className="panel">
         <div className="panel-head">
           <h2>Errors by URL</h2>
-          <button type="button" className="secondary-btn" onClick={() => handleClear('errorsByUrl')}>Clear</button>
+          {hasErrors ? (
+            <button type="button" className="secondary-btn" onClick={() => handleClear('errorsByUrl')}>Clear</button>
+          ) : null}
         </div>
-        {allErrors.length ? (
+        {hasErrors ? (
           <ul className="mono-list">
             {allErrors.map((item, index) => (
               <li key={`${item.stage}-${item.url}-${index}`}>
@@ -577,10 +622,12 @@ export default function Dashboard() {
       <section className="panel">
         <div className="panel-head">
           <h2>{status === 'completed' ? 'Complete Site URLs Scanned' : 'Discovered URLs'}</h2>
-          <button type="button" className="secondary-btn" onClick={() => handleClear('scannedUrls')}>Clear</button>
+          {hasScannedUrls ? (
+            <button type="button" className="secondary-btn" onClick={() => handleClear('scannedUrls')}>Clear</button>
+          ) : null}
         </div>
         <p>Duplicate scan validation: <strong>{duplicateScannedCount}</strong> duplicated URL scans.</p>
-        {allScannedUrls.length ? (
+        {hasScannedUrls ? (
           <ul className="mono-list">
             {allScannedUrls.map((url) => (
               <li key={url}>
@@ -627,14 +674,17 @@ export default function Dashboard() {
       <section className="panel">
         <div className="panel-head">
           <h2>Recent Scan Updates</h2>
-          <button type="button" className="secondary-btn" onClick={() => handleClear('recentUpdates')}>Clear</button>
+          {hasRecentUpdates ? (
+            <button type="button" className="secondary-btn" onClick={() => handleClear('recentUpdates')}>Clear</button>
+          ) : null}
         </div>
-        {recentEvents.length ? (
+        {hasRecentUpdates ? (
           <ul className="event-log">
             {recentEvents.map((event, index) => (
               <li key={`${event.type}-${index}-${event.at}`}>
+                <span className="event-time">{formatPstDateTime(event.payload?.at || event.at)}</span>
                 <strong>{event.type}</strong>
-                <span>{formatPstDateTime(event.payload?.at || event.at)} | {event.type} | {eventDetail(event.payload || {})}</span>
+                <span>{eventDetail(event.payload || {})}</span>
               </li>
             ))}
           </ul>

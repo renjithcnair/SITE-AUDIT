@@ -21,7 +21,7 @@ test('parseArgs reads URL and options', () => {
 
 test('parseArgs uses balanced defaults', () => {
   const parsed = parseArgs(['https://example.com']);
-  assert.equal(parsed.maxPages, 50);
+  assert.equal(parsed.maxPages, 1);
   assert.equal(parsed.maxDepth, 2);
   assert.equal(parsed.pauseMs, 1000);
 });

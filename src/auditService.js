@@ -21,7 +21,7 @@ const { summarizeIssues } = require('./summary');
 async function runAudit(options) {
   const {
     targetUrl,
-    maxPages = 50,
+    maxPages = 1,
     maxDepth = 2,
     pauseMs = 1000,
     fetchFn,
